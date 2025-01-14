@@ -1,5 +1,6 @@
 package altamirano.hernandez.api_restful.controllers;
 
+import altamirano.hernandez.api_restful.ProductoValidation;
 import altamirano.hernandez.api_restful.entities.Producto;
 import altamirano.hernandez.api_restful.services.IProductoService;
 import jakarta.validation.Valid;
@@ -19,6 +20,9 @@ public class ProductoController {
     //Inyectamos el service
     @Autowired
     private IProductoService productoService;
+    //Inyectamos la clase de validacion
+    @Autowired
+    private ProductoValidation productoValidation;
 
     @GetMapping("/prueba")
     public String prueba(){
@@ -51,7 +55,7 @@ public class ProductoController {
     @PostMapping("/")
     public Map<String, Object> save(@Valid @RequestBody Producto producto, BindingResult bindingResult){
         Map<String, Object> json = new HashMap<>();
-
+//        productoValidation.validate(producto, bindingResult);
         if (bindingResult.hasErrors()){
             Map<String, Object> errores = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error ->{
@@ -69,7 +73,7 @@ public class ProductoController {
     @PutMapping("/{id}")
     public Map<String, Object> update(@PathVariable int id, @Valid @RequestBody Producto producto, BindingResult bindingResult){
         Map<String, Object> json = new HashMap<>();
-
+//        productoValidation.validate(producto, bindingResult);
         if (bindingResult.hasErrors()){
             Map<String, String> errores = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error ->{
@@ -97,12 +101,15 @@ public class ProductoController {
 
     //Metodo que elimina un registro
     @PostMapping("/delete/{id}")
-    public ResponseEntity<?>delete(@PathVariable int id){
+    public Map<String, Object>delete(@PathVariable int id){
+        Map<String, Object> json = new HashMap<>();
         Producto producto = productoService.findById(id).orElse(null);
         if (producto != null){
             productoService.deleteById(id);
-            return  ResponseEntity.ok().build();
+            json.put("resultado", "Producto eliminado");
+        }else{
+            json.put("resultado", "Producto no eliminado");
         }
-        return ResponseEntity.notFound().build();
+        return json;
     }
 }
