@@ -2,8 +2,10 @@ package altamirano.hernandez.api_restful.controllers;
 
 import altamirano.hernandez.api_restful.entities.Producto;
 import altamirano.hernandez.api_restful.services.IProductoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -31,14 +33,6 @@ public class ProductoController {
     }
 
     //Metodo que trae un registro por ID
-//    @GetMapping("/{id}")
-//    public ResponseEntity<?> findById(@PathVariable int id){
-//        Optional<Producto> producto = productoService.findById(id);
-//        if (producto.isPresent()){
-//            return ResponseEntity.ok(producto.orElseThrow());
-//        }
-//        return ResponseEntity.notFound().build();
-//    }
     @GetMapping("/{id}")
     public Map<String, Object> findById(@PathVariable int id){
         Producto producto = productoService.findById(id).orElse(null);
@@ -55,28 +49,50 @@ public class ProductoController {
 
     //Metodo que guarda un registro
     @PostMapping("/")
-    public ResponseEntity<Producto> save(@RequestBody Producto producto){
-        return ResponseEntity.ok(productoService.save(producto));
+    public Map<String, Object> save(@Valid @RequestBody Producto producto, BindingResult bindingResult){
+        Map<String, Object> json = new HashMap<>();
+
+        if (bindingResult.hasErrors()){
+            Map<String, Object> errores = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error ->{
+                errores.put(error.getField(), error.getDefaultMessage());
+            });
+            json.put("errores", errores);
+        }else{
+            productoService.save(producto);
+            json.put("result", producto);
+        }
+        return json;
     }
 
     //Metodo que actualiza un registro
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> update(@PathVariable int id, @RequestBody Producto producto){
-        Producto productoExistente = productoService.findById(id).orElse(null);
-        if (productoExistente != null){
-            productoExistente.setId(id);
-            if (producto.getNombre() != null){
-                productoExistente.setNombre(producto.getNombre());
+    public Map<String, Object> update(@PathVariable int id, @Valid @RequestBody Producto producto, BindingResult bindingResult){
+        Map<String, Object> json = new HashMap<>();
+
+        if (bindingResult.hasErrors()){
+            Map<String, String> errores = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error ->{
+                errores.put(error.getField(), error.getDefaultMessage());
+            });
+            json.put("errores", errores);
+        }else{
+            Producto productoExistente = productoService.findById(id).orElse(null);
+            if (productoExistente != null){
+                productoExistente.setId(id);
+                if (producto.getNombre() != null){
+                    productoExistente.setNombre(producto.getNombre());
+                }
+                if (producto.getPrecio() != 0){
+                    productoExistente.setPrecio(producto.getPrecio());
+                }
+                if (producto.getDescripcion() != null){
+                    productoExistente.setDescripcion(producto.getDescripcion());
+                }
+                json.put("resultado", productoExistente);
             }
-            if (producto.getPrecio() != 0){
-                productoExistente.setPrecio(producto.getPrecio());
-            }
-            if (producto.getDescripcion() != null){
-                productoExistente.setDescripcion(producto.getDescripcion());
-            }
-            return ResponseEntity.ok(productoService.update(id, productoExistente));
         }
-        return ResponseEntity.notFound().build();
+        return json;
     }
 
     //Metodo que elimina un registro

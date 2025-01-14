@@ -1,6 +1,7 @@
 package altamirano.hernandez.api_restful.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "productos")
@@ -8,8 +9,13 @@ public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotBlank
+    @Size(min = 3, max = 60)
     private String nombre;
+    @Positive
     private double precio;
+    @NotBlank
+    @Size(min = 5, max = 90)
     private String descripcion;
 
     //Constructores
