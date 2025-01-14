@@ -38,6 +38,16 @@ public class ImplProductoService implements IProductoService{
 
     @Override
     @Transactional
+    public Producto update(int id, Producto producto) {
+        Producto productoEcontrado = iProductoRepository.findById(id).orElse(null);
+        if (productoEcontrado != null){
+            iProductoRepository.save(producto);
+        }
+        return productoEcontrado;
+    }
+
+    @Override
+    @Transactional
     public void deleteById(int id) {
         iProductoRepository.deleteById(id);
     }

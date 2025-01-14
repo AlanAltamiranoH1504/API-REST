@@ -10,6 +10,7 @@ public interface IProductoService {
     public abstract List<Producto> findAll();
     public abstract Optional<Producto> findById(int id);
     public abstract Producto save(Producto producto);
+    public abstract Producto update(int id, Producto producto);
     public abstract void deleteById(int id);
     public abstract void deleteByProducto(Producto producto);
 }

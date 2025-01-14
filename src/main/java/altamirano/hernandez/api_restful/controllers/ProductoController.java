@@ -2,7 +2,6 @@ package altamirano.hernandez.api_restful.controllers;
 
 import altamirano.hernandez.api_restful.entities.Producto;
 import altamirano.hernandez.api_restful.services.IProductoService;
-import ch.qos.logback.core.pattern.parser.OptionTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,10 +64,17 @@ public class ProductoController {
     public ResponseEntity<Producto> update(@PathVariable int id, @RequestBody Producto producto){
         Producto productoExistente = productoService.findById(id).orElse(null);
         if (productoExistente != null){
-            productoExistente.setNombre(producto.getNombre());
-            productoExistente.setPrecio(producto.getPrecio());
-            productoExistente.setDescripcion(producto.getDescripcion());
-            return ResponseEntity.ok(productoService.save(productoExistente));
+            productoExistente.setId(id);
+            if (producto.getNombre() != null){
+                productoExistente.setNombre(producto.getNombre());
+            }
+            if (producto.getPrecio() != 0){
+                productoExistente.setPrecio(producto.getPrecio());
+            }
+            if (producto.getDescripcion() != null){
+                productoExistente.setDescripcion(producto.getDescripcion());
+            }
+            return ResponseEntity.ok(productoService.update(id, productoExistente));
         }
         return ResponseEntity.notFound().build();
     }
