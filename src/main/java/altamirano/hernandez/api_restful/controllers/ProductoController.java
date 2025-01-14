@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -30,13 +32,26 @@ public class ProductoController {
     }
 
     //Metodo que trae un registro por ID
+//    @GetMapping("/{id}")
+//    public ResponseEntity<?> findById(@PathVariable int id){
+//        Optional<Producto> producto = productoService.findById(id);
+//        if (producto.isPresent()){
+//            return ResponseEntity.ok(producto.orElseThrow());
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable int id){
-        Optional<Producto> producto = productoService.findById(id);
-        if (producto.isPresent()){
-            return ResponseEntity.ok(producto.orElseThrow());
+    public Map<String, Object> findById(@PathVariable int id){
+        Producto producto = productoService.findById(id).orElse(null);
+        Map<String, Object> json = new HashMap<>();
+
+        if (producto != null){
+            json.put("resultado", "producto encontrado");
+            json.put("producto", producto);
+        }else{
+            json.put("resultado", "producto no encontrado");
         }
-        return ResponseEntity.notFound().build();
+        return json;
     }
 
     //Metodo que guarda un registro
